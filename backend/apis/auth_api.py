@@ -3,13 +3,12 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from backend.db.db_conn import get_db
-from backend.db.models import User
-from backend.db.schemas import user_schema
-from backend.services.user_service import UserService
-from backend.utils import resp_msgs, app_logger
-from backend.utils.app_helper import generate_otp, verify_otp, create_refresh_token, create_auth_token, verify_user_from_token
-from backend.utils.app_logger import createLogger
+from db.db_conn import get_db
+from db.schemas import user_schema
+from services.user_service import UserService
+from utils import resp_msgs, app_logger
+from utils.app_helper import generate_otp, verify_otp, create_refresh_token, create_auth_token, verify_user_from_token
+from utils.app_logger import createLogger
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

@@ -10,8 +10,8 @@ from db.models import User
 from utils import app_logger
 from utils.redis_helper import RedisHelper
 
-from backend.services.user_service import UserService
-from backend.utils.app_logger import createLogger
+from services.user_service import UserService
+from utils.app_logger import createLogger
 
 # In-memory OTP storage (in production, use Redis or database)
 otp_storage: Dict[str, Dict] = {}

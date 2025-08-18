@@ -1,10 +1,7 @@
 import os
+from utils import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
-# Define Base here to avoid circular imports
-Base = declarative_base()
 
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -14,7 +11,6 @@ SessionLocal = sessionmaker(autocommit=False,
                             bind=engine)
 
 
-Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()

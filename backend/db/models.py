@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import Column, String, DateTime, Boolean, Text, func, Integer, ForeignKey, BigInteger, Enum
 from sqlalchemy.orm import relationship
 
-from .db_conn import Base
+from utils import Base
 
 
 class ContentType(enum.Enum):
@@ -54,15 +54,15 @@ class Content(Base):
     id = Column(String, primary_key=True, index=True)
     content_type = Column(Enum(ContentType), nullable=False)
     title = Column(String, nullable=True)  # Optional title for content
-    tags = Column(Text, nullable=True)  # JSON string of tags
+    tags = Column(Text, nullable=True)  # JSON string for tags
     
-    # User relationship (for user-based auth)
+    # Device relationship (primary - content belongs to device)
+    device_id = Column(String, ForeignKey("devices.id"), nullable=False)
+    device = relationship("Device", back_populates="contents")
+    
+    # User relationship (derived from device)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="contents")
-    
-    # Device relationship (for device-based auth)
-    device_id = Column(String, ForeignKey("devices.id"), nullable=True)
-    device = relationship("Device", back_populates="contents")
     
     # Text content fields
     text_content = Column(Text, nullable=True)  # For storing long text

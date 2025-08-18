@@ -8,18 +8,18 @@ import logging
 
 from starlette.responses import JSONResponse
 
-from backend.db.db_conn import get_db
-from backend.db.models import Content, ContentType, User, Device
-from backend.db.schema import (
+from db.db_conn import get_db
+from db.models import Content, ContentType, User, Device
+from db.schema import (
     ContentResponse, 
     ContentListResponse,
     ContentUpdateRequest,
     ContentTypeEnum
 )
-from backend.utils import app_logger
+from utils import app_logger
 
-from backend.utils.dependencies import get_current_user
-from backend.utils.minio_conn import minio_client
+from utils.dependencies import get_current_user
+from utils.minio_conn import minio_client
 from minio.error import S3Error
 
 # Configure logging
@@ -107,11 +107,10 @@ async def upload_content(
         )
     
     content_id = str(uuid.uuid4())
+    bucket = str(current_user.phone_number)
     
     try:
-        # Handle file upload
         if file:
-            # Validate file size
             file_content = await file.read()
             file_size = len(file_content)
             
@@ -149,8 +148,7 @@ async def upload_content(
                 id=content_id,
                 content_type=ContentType.FILE,
                 title=title or file.filename,
-                tags=serialize_tags(parse_tags(tags)),
-                device_id=current_user.id,
+                user_id=current_user.id,
                 filename=stored_filename,
                 original_name=file.filename,
                 bucket=bucket,
@@ -175,8 +173,7 @@ async def upload_content(
                 id=content_id,
                 content_type=ContentType.TEXT,
                 title=title or "Text Content",
-                tags=serialize_tags(parse_tags(tags)),
-                device_id=current_user.id,
+                user_id=current_user.id,
                 text_content=text_content
             )
             
@@ -192,7 +189,6 @@ async def upload_content(
             id=content.id,
             content_type=ContentTypeEnum.FILE if content.content_type == ContentType.FILE else ContentTypeEnum.TEXT,
             title=content.title,
-            tags=json.loads(content.tags) if content.tags else None,
             created_at=content.created_at,
             updated_at=content.updated_at,
             text_content=content.text_content,

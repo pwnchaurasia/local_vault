@@ -85,8 +85,8 @@ class FileListResponse(BaseModel):
     files: List[dict]
     total_count: int
 
-class UploadFile(BaseModel):
+class UploadSchema(BaseModel):
     file: bytes
     filename: str
-    bucket: str = "shared"  # Default bucket
+    text_content: Optional[str] = None
     tags: Optional[List[str]] = None  # Tags for the file
