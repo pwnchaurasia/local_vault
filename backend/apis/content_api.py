@@ -159,7 +159,7 @@ async def upload_content(
                 user_id=current_user.id,
                 filename=stored_filename,
                 original_name=file.filename,
-                bucket=bucket,
+                bucket=bucket_name,
                 file_path=f"{bucket}/{stored_filename}",
                 file_size=file_size,
                 mime_type=file.content_type
