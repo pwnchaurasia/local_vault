@@ -25,27 +25,6 @@ class User(Base):
 
     # Relationships
     contents = relationship("Content", back_populates="user", cascade="all, delete-orphan")
-    devices = relationship("Device", back_populates="user", cascade="all, delete-orphan")
-
-
-class Device(Base):
-    __tablename__ = "devices"
-    
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    device_name = Column(String, nullable=False)
-    device_type = Column(String, nullable=False)  # 'mobile' or 'chrome'
-    mac_address = Column(String, nullable=True)
-    api_key_hash = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    last_seen = Column(DateTime(timezone=True), nullable=True)
-
-    # Relationships
-    contents = relationship("Content", back_populates="device", cascade="all, delete-orphan")
-    user = relationship("User", back_populates="devices")
-
-
 
 class Content(Base):
     """Polymorphic model to handle both file uploads and text content"""
@@ -55,11 +34,7 @@ class Content(Base):
     content_type = Column(Enum(ContentType), nullable=False)
     title = Column(String, nullable=True)  # Optional title for content
     tags = Column(Text, nullable=True)  # JSON string for tags
-    
-    # Device relationship (primary - content belongs to device)
-    device_id = Column(String, ForeignKey("devices.id"), nullable=False)
-    device = relationship("Device", back_populates="contents")
-    
+
     # User relationship (derived from device)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="contents")
@@ -88,7 +63,6 @@ class FileMetadata(Base):
     
     id = Column(String, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    device_id = Column(String, ForeignKey("devices.id"), nullable=True)
     filename = Column(String, nullable=False)
     original_name = Column(String, nullable=False)
     bucket = Column(String, nullable=False)

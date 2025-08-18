@@ -1,8 +1,8 @@
-"""all tables
+"""removed device data from content
 
-Revision ID: bfa40b2e1eb9
+Revision ID: 5823035588b6
 Revises: 
-Create Date: 2025-08-18 17:32:07.670016
+Create Date: 2025-08-18 18:05:31.312274
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'bfa40b2e1eb9'
+revision: str = '5823035588b6'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -33,26 +33,11 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_phone_number'), 'users', ['phone_number'], unique=True)
-    op.create_table('devices',
-    sa.Column('id', sa.String(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('device_name', sa.String(), nullable=False),
-    sa.Column('device_type', sa.String(), nullable=False),
-    sa.Column('mac_address', sa.String(), nullable=True),
-    sa.Column('api_key_hash', sa.String(), nullable=False),
-    sa.Column('is_active', sa.Boolean(), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-    sa.Column('last_seen', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_devices_id'), 'devices', ['id'], unique=False)
     op.create_table('contents',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('content_type', sa.Enum('FILE', 'TEXT', name='contenttype'), nullable=False),
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('tags', sa.Text(), nullable=True),
-    sa.Column('device_id', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('text_content', sa.Text(), nullable=True),
     sa.Column('filename', sa.String(), nullable=True),
@@ -63,7 +48,6 @@ def upgrade() -> None:
     sa.Column('mime_type', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-    sa.ForeignKeyConstraint(['device_id'], ['devices.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -71,7 +55,6 @@ def upgrade() -> None:
     op.create_table('file_metadata',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('device_id', sa.String(), nullable=True),
     sa.Column('filename', sa.String(), nullable=False),
     sa.Column('original_name', sa.String(), nullable=False),
     sa.Column('bucket', sa.String(), nullable=False),
@@ -81,7 +64,6 @@ def upgrade() -> None:
     sa.Column('tags', sa.Text(), nullable=True),
     sa.Column('uploaded_by', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-    sa.ForeignKeyConstraint(['device_id'], ['devices.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -96,8 +78,6 @@ def downgrade() -> None:
     op.drop_table('file_metadata')
     op.drop_index(op.f('ix_contents_id'), table_name='contents')
     op.drop_table('contents')
-    op.drop_index(op.f('ix_devices_id'), table_name='devices')
-    op.drop_table('devices')
     op.drop_index(op.f('ix_users_phone_number'), table_name='users')
     op.drop_index(op.f('ix_users_id'), table_name='users')
     op.drop_table('users')

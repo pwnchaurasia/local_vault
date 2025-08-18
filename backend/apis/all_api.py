@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from fastapi.responses import StreamingResponse
-from db.models import Device, FileMetadata, User
-from db.schema import DeviceRegister, DeviceLogin, FileUploadResponse, FileListResponse
+from db.models import FileMetadata, User
+from db.schema import FileUploadResponse, FileListResponse
 from db.db_conn import get_db
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -9,7 +9,7 @@ import logging
 import uuid
 
 from utils.dependencies import get_current_user
-from utils.minio_conn import minio_client
+# from utils.minio_conn import minio_client
 from minio.error import S3Error
 
 
@@ -33,14 +33,14 @@ def upload_file(
     try:
         bucket = str(current_user.phone_number)
         # Upload to MinIO
-        minio_client.put_object(
-            bucket,
-            stored_filename,
-            file.file,
-            length=-1,  # Unknown length
-            part_size=10*1024*1024,  # 10MB parts
-            content_type=file.content_type
-        )
+        # minio_client.put_object(
+        #     bucket,
+        #     stored_filename,
+        #     file.file,
+        #     length=-1,  # Unknown length
+        #     part_size=10*1024*1024,  # 10MB parts
+        #     content_type=file.content_type
+        # )
 
         # Store metadata in database
         file_metadata = FileMetadata(
@@ -112,7 +112,7 @@ async def list_files(
 @router.get("/files/download/{file_id}")
 async def download_file(
     file_id: str,
-    current_user: Device = Depends(get_current_user),
+    current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Download a file by ID"""
@@ -124,18 +124,18 @@ async def download_file(
     
     try:
         # Get file from MinIO
-        response = minio_client.get_object(file_meta.bucket, file_meta.filename)
+        # response = minio_client.get_object(file_meta.bucket, file_meta.filename)
         
-        def file_generator():
-            try:
-                while True:
-                    data = response.read(8192)  # Read in 8KB chunks
-                    if not data:
-                        break
-                    yield data
-            finally:
-                response.close()
-                response.release_conn()
+        # def file_generator():
+        #     try:
+        #         while True:
+        #             data = response.read(8192)  # Read in 8KB chunks
+        #             if not data:
+        #                 break
+        #             yield data
+        #     finally:
+        #         response.close()
+        #         response.release_conn()
         
         return StreamingResponse(
             file_generator(),
@@ -151,32 +151,6 @@ async def download_file(
     except Exception as e:
         logger.error(f"Error downloading file: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
-
-@router.get("/admin/devices")
-async def list_devices(
-    current_user: Device = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """List all registered devices (admin endpoint)"""
-    
-    devices = db.query(Device).all()
-    devices_data = []
-    
-    for device in devices:
-        devices_data.append({
-            "device_id": device.id,
-            "device_name": device.device_name,
-            "device_type": device.device_type,
-            "mac_address": device.mac_address,
-            "is_active": device.is_active,
-            "created_at": device.created_at.isoformat(),
-            "last_seen": device.last_seen.isoformat() if device.last_seen else None
-        })
-    
-    return {
-        "devices": devices_data,
-        "total_count": len(devices_data)
-    }
 
 @router.get("/health")
 async def health_check():

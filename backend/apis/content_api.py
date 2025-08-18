@@ -9,7 +9,7 @@ import logging
 from starlette.responses import JSONResponse
 
 from db.db_conn import get_db
-from db.models import Content, ContentType, User, Device
+from db.models import Content, ContentType, User
 from db.schema import (
     ContentResponse, 
     ContentListResponse,
@@ -19,8 +19,10 @@ from db.schema import (
 from utils import app_logger
 
 from utils.dependencies import get_current_user
-from utils.minio_conn import minio_client
+# from utils.minio_conn import minio_client
 from minio.error import S3Error
+
+from backend.utils.minio_conn import MinIOService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -134,12 +136,18 @@ async def upload_content(
             # Upload to MinIO
             from io import BytesIO
             file_stream = BytesIO(file_content)
+
+            # Initialize MinIO service
+            minio_service = MinIOService()
+
+            bucket_name = minio_service.create_user_bucket(bucket)
             
-            minio_client.put_object(
-                bucket,
+            minio_service.client.put_object(
+                bucket_name,
                 stored_filename,
-                file_stream,
-                length=file_size,
+                file.file,
+                length=-1,
+                part_size=10 * 1024 * 1024,
                 content_type=file.content_type
             )
             
@@ -285,7 +293,7 @@ async def download_file(
     
     content = db.query(Content).filter(
         Content.id == content_id,
-        Content.device_id == current_user.id,
+        Content.user_id == current_user.id,
         Content.content_type == ContentType.FILE
     ).first()
     
@@ -293,8 +301,9 @@ async def download_file(
         raise HTTPException(status_code=404, detail="File content not found")
     
     try:
+        minio_service = MinIOService()
         # Get file from MinIO
-        response = minio_client.get_object(content.bucket, content.filename)
+        response = minio_service.client.get_object(content.bucket, content.filename)
         
         def file_generator():
             try:
@@ -333,7 +342,7 @@ async def get_content(
     
     content = db.query(Content).filter(
         Content.id == content_id,
-        Content.device_id == current_user.id
+        Content.user_id == current_user.id
     ).first()
     
     if not content:
@@ -368,7 +377,7 @@ async def delete_content(
     
     content = db.query(Content).filter(
         Content.id == content_id,
-        Content.device_id == current_user.id
+        Content.user_id == current_user.id
     ).first()
     
     if not content:
@@ -377,7 +386,8 @@ async def delete_content(
     # Delete file from MinIO if it's a file content
     if content.content_type == ContentType.FILE and content.bucket and content.filename:
         try:
-            minio_client.remove_object(content.bucket, content.filename)
+            minio_service = MinIOService()
+            minio_service.client.remove_object(content.bucket, content.filename)
             logger.info(f"File deleted from MinIO: {content.bucket}/{content.filename}")
         except S3Error as e:
             logger.warning(f"Failed to delete file from MinIO: {e}")
@@ -398,19 +408,19 @@ async def get_content_stats(
 ):
     """Get content statistics for the current user"""
     
-    total_content = db.query(Content).filter(Content.device_id == current_user.id).count()
+    total_content = db.query(Content).filter(Content.user_id == current_user.id).count()
     text_content = db.query(Content).filter(
-        Content.device_id == current_user.id,
+        Content.user_id == current_user.id,
         Content.content_type == ContentType.TEXT
     ).count()
     file_content = db.query(Content).filter(
-        Content.device_id == current_user.id,
+        Content.user_id == current_user.id,
         Content.content_type == ContentType.FILE
     ).count()
     
     # Calculate total file size
     total_file_size = db.query(Content).filter(
-        Content.device_id == current_user.id,
+        Content.user_id == current_user.id,
         Content.content_type == ContentType.FILE
     ).with_entities(Content.file_size).all()
     

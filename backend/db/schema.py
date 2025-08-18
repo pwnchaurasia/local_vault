@@ -20,14 +20,6 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class DeviceRegister(BaseModel):
-    device_name: str
-    device_type: str  # 'mobile' or 'chrome'
-    mac_address: Optional[str] = None
-
-class DeviceLogin(BaseModel):
-    device_id: str
-    api_key: str
 
 # Content related schemas
 class ContentBase(BaseModel):
@@ -46,7 +38,6 @@ class ContentResponse(BaseModel):
     id: str
     content_type: ContentTypeEnum
     title: Optional[str]
-    tags: Optional[List[str]]
     created_at: datetime
     updated_at: datetime
     
