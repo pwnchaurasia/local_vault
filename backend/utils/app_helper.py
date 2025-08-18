@@ -4,11 +4,14 @@ import hmac
 import random
 import string
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict
 from db.models import User
 from utils import app_logger
 from utils.redis_helper import RedisHelper
+
+from backend.services.user_service import UserService
+from backend.utils.app_logger import createLogger
 
 # In-memory OTP storage (in production, use Redis or database)
 otp_storage: Dict[str, Dict] = {}
@@ -19,25 +22,21 @@ JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', 30)
 REFRESH_TOKEN_EXPIRE_DAYS = os.getenv('REFRESH_TOKEN_EXPIRE_DAYS', 7)
 
+logger = createLogger('app')
+
+
 def generate_otp(identifier, otp_type="mobile_verification"):
     try:
         redis_client = RedisHelper()
         otp = str(random.randint(100000, 999999))
         otp_key = f"otp:{otp_type}:{identifier}"
-        redis_client.set_with_ttl(otp_key, otp, os.getenv("OTP_TTL"))  # Store OTP for 3 minutes
+        redis_client.set_with_ttl(otp_key, otp, int(os.getenv("OTP_TTL", 180)))  # Store OTP for 3 minutes
         return otp
     except Exception as e:
         app_logger.exceptionlogs(f"Error in generate_otp, Error: {e}")
         return None
 
 def verify_otp(identifier, otp_input, otp_type="mobile_verification"):
-    """
-        Verify an OTP for a given identifier (phone/email).
-        :param identifier: Can be a phone number or an email.
-        :param otp_input: The OTP entered by the user.
-        :param otp_type: Type of OTP verification.
-        :return: True if valid, False otherwise.
-    """
     try:
         redis_client = RedisHelper()
         otp_key = f"otp:{otp_type}:{identifier}"
@@ -54,11 +53,12 @@ def verify_otp(identifier, otp_input, otp_type="mobile_verification"):
 def create_auth_token(user: User) -> str:
     """Create JWT access token for user"""
     try:
+
         payload = {
             "user_id": user.id,
-            "phone_number": user.phone_number,
-            "exp": datetime.now(datetime.UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-            "iat": datetime.now(datetime.UTC),
+            "phone_number": hash_mobile_number(user.phone_number),
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES)),
+            "iat": datetime.now(timezone.utc),
             "type": "access"
         }
         
@@ -74,9 +74,9 @@ def create_refresh_token(user: User) -> str:
     try:
         payload = {
             "user_id": user.id,
-            "phone_number": user.phone_number,
-            "exp": datetime.now(datetime.UTC) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
-            "iat": datetime.now(datetime.UTC),
+            "phone_number": hash_mobile_number(user.phone_number),
+            "exp": datetime.now(timezone.utc) + timedelta(days=int(REFRESH_TOKEN_EXPIRE_DAYS)),
+            "iat": datetime.now(timezone.utc),
             "type": "refresh"
         }
         
@@ -87,28 +87,50 @@ def create_refresh_token(user: User) -> str:
         print(f"Error creating refresh token: {e}")
         return None
 
-def verify_user_from_token(token: str) -> Optional[Dict]:
-    """Verify JWT token and return user data"""
+@app_logger.functionlogs(log="app")
+def decode_jwt(token: str):
+    """Decodes and verifies JWT token"""
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        
-        # Check if token is not expired
-        if datetime.now(datetime.utc) > datetime.fromtimestamp(payload["exp"]):
-            return None
-        
-        return {
-            "user_id": payload["user_id"],
-            "phone_number": payload["phone_number"],
-            "type": payload.get("type", "access")
-        }
-        
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        exp = payload.get("exp")
+
+        if not exp or datetime.now(timezone.utc) > datetime.fromtimestamp(exp, tz=timezone.utc):
+            logger.debug("Token expired. time exceeded")
+            return False, "Token Expired. Please login again.", {}
+
+        return True, "Token valid", payload
+
     except jwt.ExpiredSignatureError:
-        return None
+        logger.debug("Token expired")
+        return False, "Token Expired. Please login again.", {}
+
     except jwt.InvalidTokenError:
-        return None
+        logger.debug("Token expired")
+        return False, "Wrong token. Please login gain.", {}
+
+
+def verify_user_from_token(token: str, db) -> Optional[Dict]:
+    """Verifies user from JWT token"""
+    is_verified = False
+    user = None
+    try:
+        is_decoded, msg, payload = decode_jwt(token)
+        if not is_decoded:
+            return is_verified, msg, user
+
+        user_id = payload.get("user_id")
+        hashed_mobile = payload.get("phone_number")
+
+        user = UserService.get_user_by_id(user_id, db)
+
+        if not user or hash_mobile_number(user.phone_number) != hashed_mobile:
+            logger.debug("not user or mobile hash doesnt match")
+            return is_verified, "Mobile hash doesn't match", user
+        is_verified = True
+        return is_verified, "User verified", user
     except Exception as e:
-        print(f"Error verifying token: {e}")
-        return None
+        app_logger.exceptionlogs(f"Error in verify user from token, Error: {e}")
+        return False, "Error occurred", None
 
 def generate_random_string(length: int = 32) -> str:
     """Generate random string for various purposes"""

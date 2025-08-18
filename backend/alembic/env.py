@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from dotenv import load_dotenv
 load_dotenv('.env')
-from utils import Base
+from db.db_conn import Base
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, create_engine

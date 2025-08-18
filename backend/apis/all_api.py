@@ -19,22 +19,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="", tags=["api"])
 
-# @router.get("/")
-# async def root():
-#     return {
-#         "message": "LocalVault API is running!",
-#         "version": "1.0.0",
-#         "endpoints": {
-#             "register": "/auth/register",
-#             "login": "/auth/login",
-#             "upload": "/files/upload",
-#             "list": "/files/list",
-#             "download": "/files/download/{file_id}",
-#             "devices": "/admin/devices"
-#         }
-#     }
-
-
 
 @router.post("/files/upload", name="file-upload")
 def upload_file(

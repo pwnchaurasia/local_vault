@@ -9,8 +9,11 @@ from backend.db.schemas import user_schema
 from backend.services.user_service import UserService
 from backend.utils import resp_msgs, app_logger
 from backend.utils.app_helper import generate_otp, verify_otp, create_refresh_token, create_auth_token, verify_user_from_token
+from backend.utils.app_logger import createLogger
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+logger = createLogger('app')
 
 
 @router.post("/request-otp", status_code=status.HTTP_200_OK, name="request-otp")
@@ -60,7 +63,7 @@ async def verify_mobile_and_otp(request: user_schema.OTPVerification,
     try:
         user = UserService.create_user_by_phone_number(phone_number=request.phone_number, db=db)
         if not user:
-            app_logger.exceptionlogs(f"Not able to create user get_or_create_user_by_phone_number")
+            logger.info(f"Not able to create user get_or_create_user_by_phone_number")
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"status": "error", "message": resp_msgs.INVALID_OTP}
@@ -69,14 +72,11 @@ async def verify_mobile_and_otp(request: user_schema.OTPVerification,
         auth_token = create_auth_token(user)
         refresh_token = create_refresh_token(user)
 
-        # Check if profile is complete (has name and email)
-        is_profile_complete = bool(user.name and user.email)
 
         return JSONResponse(
             content={
                 "access_token": auth_token,
                 "refresh_token": refresh_token,
-                "is_profile_complete": is_profile_complete
             },
             status_code=status.HTTP_201_CREATED
         )
