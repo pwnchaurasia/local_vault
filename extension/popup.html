@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalVault</title>
+    <style>
+        body {
+            width: 400px;
+            min-height: 500px;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        input[type="text"], input[type="url"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .status.info {
+            background: rgba(33, 150, 243, 0.3);
+            border: 1px solid rgba(33, 150, 243, 0.5);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .file-drop-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-drop-area:hover, .file-drop-area.dragover {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .file-info {
+            font-size: 12px;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .device-info {
+            font-size: 11px;
+            opacity: 0.7;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .tab-button.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🔐 LocalVault</div>
+            <div class="subtitle">Secure local file sharing</div>
+        </div>
+
+        <!-- Setup Screen -->
+        <div id="setupScreen" class="hidden">
+            <div class="card">
+                <div class="form-group">
+                    <label for="serverUrl">Server URL</label>
+                    <input type="url" id="serverUrl"
+                           placeholder="http://192.168.1.100:8000"
+                           value="http://localhost:8000"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="text" id="phoneNumber" placeholder="+1234567890" />
+                </div>
+                <button id="sendOtpBtn">Send OTP</button>
+            </div>
+        </div>
+
+        <!-- OTP Verification Screen -->
+        <div id="otpScreen" class="hidden">
+            <div class="card">
+                <div class="form-group">
+                    <label for="otpCode">Enter OTP</label>
+                    <input type="text" id="otpCode" placeholder="123456" maxlength="6" />
+                </div>
+                <button id="verifyOtpBtn">Verify & Connect</button>
+                <button id="backToSetupBtn" class="btn-secondary">Back</button>
+            </div>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="mainScreen" class="hidden">
+            <div id="statusMessage" class="hidden"></div>
+
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="upload">Upload</button>
+                <button class="tab-button" data-tab="files">Files</button>
+                <button class="tab-button" data-tab="settings">Settings</button>
+            </div>
+
+            <!-- Upload Tab -->
+            <div id="uploadTab" class="tab-content">
+                <div class="card">
+                    <div class="file-drop-area" id="fileDropArea">
+                        <div>📁 Drop files here or click to select</div>
+                        <input type="file" id="fileInput" multiple style="display: none;" />
+                    </div>
+                    <div id="fileInfo" class="file-info hidden"></div>
+                </div>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label for="textContent">Or paste text content</label>
+                        <textarea id="textContent" rows="4" placeholder="Paste your text here..."></textarea>
+                    </div>
+<!--                    <div class="form-group">-->
+<!--                        <label for="phoneTarget">Send to phone (optional)</label>-->
+<!--                        <input type="text" id="phoneTarget" placeholder="+1234567890" />-->
+<!--                    </div>-->
+                    <button id="uploadBtn">Upload</button>
+                </div>
+            </div>
+
+            <!-- Files Tab -->
+            <div id="filesTab" class="tab-content hidden">
+                <div class="card">
+                    <button id="refreshFilesBtn" class="btn-secondary">Refresh Files</button>
+                    <div id="filesList"></div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content hidden">
+                <div class="card">
+                    <div class="form-group">
+                        <label>Server URL</label>
+                        <input type="url" id="currentServerUrl" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="currentPhoneNumber" readonly />
+                    </div>
+                    <button id="logoutBtn" class="btn-secondary">Logout</button>
+                </div>
+                <div class="device-info">
+                    <div>Device ID: <span id="deviceId">-</span></div>
+                    <div>Connected: <span id="connectionStatus">-</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

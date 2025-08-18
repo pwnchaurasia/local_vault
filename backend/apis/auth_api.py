@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -26,12 +28,16 @@ async def request_otp(request: user_schema.UserRegistration):
                     status_code=status.HTTP_400_BAD_REQUEST
                 )
             # TODO : remove OTP from here. its just temporary for testing
+            print(f"Otp is {otp}")
+            content = {
+                "status": "success",
+                "message": "Otp sent to your mobile number. Please verify Using it",
+            }
+            if os.getenv('ENV', 'dev') == 'dev':
+                content['temp_otp'] = otp
+
             return JSONResponse(
-                content={
-                    "status": "success",
-                    "message": "Otp sent to your mobile number. Please verify Using it",
-                    "temp_otp": f"{otp}"
-                },
+                content=content,
                 status_code=status.HTTP_201_CREATED
             )
     except Exception as e:
