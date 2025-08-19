@@ -429,7 +429,7 @@ class LocalVaultExtension {
 
     displayFiles(files) {
         const filesList = document.getElementById('filesList');
-
+        filesList.innerHTML = ''
         if (files.length === 0) {
             filesList.innerHTML = '<div style="text-align: center; opacity: 0.7; margin: 20px 0;">No files found</div>';
             return;
@@ -439,14 +439,17 @@ class LocalVaultExtension {
             const fileDiv = document.createElement('div');
             fileDiv.style.cssText = 'background: rgba(255,255,255,0.1); padding: 10px; margin: 5px 0; border-radius: 6px; cursor: pointer;';
 
-            const displayName = file.content_type === 'text' ? file.text_content : file.original_name;
+            console.log('file.content_type', file.content_type)
+            const displayName = file.content_type === 'text'
+    ? file.text_content.substring(0, 60) + (file.text_content.length > 60 ? '...' : '')
+    : file.original_name;
 
             const fileInfo = file.content_type === 'text'
             ? `Text • ${new Date(file.created_at).toLocaleDateString()}`
             : `${this.formatFileSize(parseInt(file.file_size) || 0)} • ${new Date(file.created_at).toLocaleDateString()}`;
 
             fileDiv.innerHTML = `
-                <div style="font-weight: 500;">${file.original_name}</div>
+                <div style="font-weight: 500;">${displayName}</div>
                 <div style="font-size: 11px; opacity: 0.7;">
                     ${fileInfo}
                 </div>
