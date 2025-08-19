@@ -82,22 +82,22 @@ def functionlogs(log="app"):
             try:
                 response = function(*args, **kwargs)
             except Exception as error:
-                log_enter_text = "[core][{0}][ENTER] with input={1} kwargs={2}".format(
+                log_enter_text = "[local_vault][{0}][ENTER] with input={1} kwargs={2}".format(
                     func_str, args, kwargs)
                 logger.debug(log_enter_text)
 
-                log_error_text = "[core][{0}][ERROR] error={1}".format(func_str, str(error))
+                log_error_text = "[local_vault][{0}][ERROR] error={1}".format(func_str, str(error))
                 logger.error(log_error_text)
                 raise error
 
             end_time = datetime.now(timezone.utc)
             time_taken = end_time - init_time
             try:
-                log_enter_text = "[core][{0}][ENTER] with input={1} kwargs={2}".format(
+                log_enter_text = "[local_vault][{0}][ENTER] with input={1} kwargs={2}".format(
                     func_str, args, kwargs
                 )
                 logger.debug(log_enter_text)
-                log_exit_text = "[core][{0}][EXIT] response={1} in {2} seconds".format(
+                log_exit_text = "[local_vault][{0}][EXIT] response={1} in {2} seconds".format(
                     func_str, response, time_taken)
                 logger.debug(log_exit_text)
             except:

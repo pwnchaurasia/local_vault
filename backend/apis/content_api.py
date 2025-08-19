@@ -315,7 +315,7 @@ async def download_file(
                     if not data:
                         break
                     total_bytes += len(data)
-                    print(f"Sending chunk: {len(data)} bytes, total: {total_bytes}")
+                    logger.info(f"Sending chunk: {len(data)} bytes, total: {total_bytes}")
                     yield data
             finally:
                 response.close()
