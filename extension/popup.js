@@ -438,21 +438,51 @@ class LocalVaultExtension {
          files.forEach(file => {
             const fileDiv = document.createElement('div');
             fileDiv.style.cssText = 'background: rgba(255,255,255,0.1); padding: 10px; margin: 5px 0; border-radius: 6px; cursor: pointer;';
+
+            const displayName = file.content_type === 'text' ? file.text_content : file.original_name;
+
+            const fileInfo = file.content_type === 'text'
+            ? `Text • ${new Date(file.created_at).toLocaleDateString()}`
+            : `${this.formatFileSize(parseInt(file.file_size) || 0)} • ${new Date(file.created_at).toLocaleDateString()}`;
+
             fileDiv.innerHTML = `
                 <div style="font-weight: 500;">${file.original_name}</div>
                 <div style="font-size: 11px; opacity: 0.7;">
-                    ${this.formatFileSize(parseInt(file.file_size) || 0)} •
-                    ${new Date(file.created_at).toLocaleDateString()}
+                    ${fileInfo}
                 </div>
             `;
 
             // Add click listener (not inline onclick)
             fileDiv.addEventListener('click', () => {
-                this.downloadFile(file.id, file.original_name);
+                 if (file.content_type === 'text') {
+                    this.copyTextToClipboard(file.text_content);
+                } else {
+                    this.downloadFile(file.id, file.original_name);
+                }
             });
 
             filesList.appendChild(fileDiv);
         });
+    }
+
+    // Add this new method for copying text to clipboard
+    async copyTextToClipboard(textContent) {
+        try {
+            await navigator.clipboard.writeText(textContent);
+            this.showStatus('Text copied to clipboard!', 'success');
+        } catch (error) {
+            console.error('Clipboard copy failed:', error);
+
+            // Fallback method for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            this.showStatus('Text copied to clipboard!', 'success');
+        }
     }
 
     async downloadFile(fileId, filename) {
