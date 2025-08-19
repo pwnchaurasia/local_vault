@@ -47,18 +47,18 @@ cp .env.example .env
 python main.py
 ```
 
-The API will be available at `http://localhost:9000`
+The API will be available at `http://localhost:8000`
 
 ## 📚 API Documentation
 
 ### Base URL
 ```
-http://localhost:9000/api/v1
+http://localhost:8000/api/v1
 ```
 
 ### Interactive Documentation
-- Swagger UI: `http://localhost:9000/docs`
-- ReDoc: `http://localhost:9000/redoc`
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
 ## 🔐 Authentication
 
@@ -82,23 +82,6 @@ POST /api/v1/auth/verify-otp
 
 ### 2. Device Authentication (API Key-based)
 ```bash
-# Register device
-POST /api/v1/auth/register-device
-{
-  "device_name": "My Laptop",
-  "device_type": "chrome",
-  "mac_address": "00:11:22:33:44:55"
-}
-
-# Login with device
-POST /api/v1/auth/login
-{
-  "device_id": "device-uuid",
-  "api_key": "your-api-key"
-}
-```
-
-## 📝 Content Management API
 
 ### Create Text Content
 ```bash
@@ -272,74 +255,8 @@ MINIO_SECURE=false
 
 # API
 API_HOST=0.0.0.0
-API_PORT=9000
+API_PORT=8000
 ```
-
-## 🧪 Testing
-
-### Test File Upload
-```bash
-curl -X POST "http://localhost:9000/api/v1/content/file" \
-  -H "Authorization: Bearer <your-jwt-token>" \
-  -F "file=@test.pdf" \
-  -F "title=Test Document" \
-  -F "tags=test,document"
-```
-
-### Test Text Content
-```bash
-curl -X POST "http://localhost:9000/api/v1/content/text" \
-  -H "Authorization: Bearer <your-jwt-token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Test Note",
-    "text_content": "This is a test note with some content.",
-    "tags": ["test", "note"]
-  }'
-```
-
-## 📊 Response Examples
-
-### Content Response
-```json
-{
-  "id": "123e4567-e89b-12d3-a456-426614174000",
-  "content_type": "text",
-  "title": "My Important Notes",
-  "tags": ["notes", "important"],
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T10:30:00Z",
-  "text_content": "This is my important note content...",
-  "filename": null,
-  "original_name": null,
-  "bucket": null,
-  "file_size": null,
-  "mime_type": null,
-  "download_url": null
-}
-```
-
-### File Content Response
-```json
-{
-  "id": "456e7890-e89b-12d3-a456-426614174001",
-  "content_type": "file",
-  "title": "Project Document",
-  "tags": ["work", "project"],
-  "created_at": "2024-01-15T11:00:00Z",
-  "updated_at": "2024-01-15T11:00:00Z",
-  "text_content": null,
-  "filename": "456e7890-e89b-12d3-a456-426614174001.pdf",
-  "original_name": "project_document.pdf",
-  "bucket": "shared",
-  "file_size": 1048576,
-  "mime_type": "application/pdf",
-  "download_url": "/api/v1/content/download/456e7890-e89b-12d3-a456-426614174001"
-}
-```
-
-## 🚀 Deployment
-
 ### Docker Deployment
 ```bash
 # Build and run with Docker Compose

@@ -12,6 +12,8 @@ from utils import resp_msgs, app_logger
 from utils.app_helper import generate_otp, verify_otp, create_refresh_token, create_auth_token, verify_user_from_token
 from utils.app_logger import createLogger
 
+from backend.utils.dependencies import get_current_user
+
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 logger = createLogger('app')
@@ -91,3 +93,15 @@ async def verify_mobile_and_otp(request: user_schema.OTPVerification,
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"status": "error", "message": resp_msgs.STATUS_500_MSG}
         )
+
+
+@router.get("/auth-validity", name="auth-validity")
+async def health_check(
+        current_user = Depends(get_current_user),
+        db: Session = Depends(get_db)):
+
+    return {
+        "status": "healthy",
+        "service": "LocalVault API",
+        "version": "2.0.0"
+    }

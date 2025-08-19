@@ -62,13 +62,6 @@ async def root():
         }
     }
 
-@app.get("/health")
-async def health_check():
-    return {
-        "status": "healthy",
-        "service": "LocalVault API",
-        "version": "2.0.0"
-    }
 
 if __name__ == "__main__":
     import uvicorn

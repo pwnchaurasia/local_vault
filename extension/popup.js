@@ -20,13 +20,39 @@ class LocalVaultExtension {
         // Setup event listeners
         this.setupEventListeners();
 
+        // Test connection
+        await this.testConnection();
+
         // Determine which screen to show
-        if (this.jwtToken && this.baseUrl) {
+        if (this.access_token && this.baseUrl) {
             await this.showMainScreen();
         } else {
             this.showSetupScreen();
         }
     }
+
+    async clearTokensOnly() {
+        try {
+            await chrome.storage.local.remove([
+                'jwtToken',
+                'access_token',
+                'refresh_token',
+                'deviceId'
+            ]);
+
+            this.access_token = '';
+            this.refresh_token = '';
+
+            // Keep baseUrl and phoneNumber for easier re-login
+            this.showSetupScreen();
+            this.showStatus('Session expired - please login again', 'info');
+
+            console.log('Tokens cleared, keeping server settings');
+        } catch (error) {
+            console.error('Clear tokens error:', error);
+        }
+    }
+
 
     async loadSettings() {
         const data = await chrome.storage.local.get([
@@ -147,9 +173,6 @@ class LocalVaultExtension {
         document.getElementById('currentPhoneNumber').value = this.phoneNumber;
         document.getElementById('deviceId').textContent = this.deviceId.substring(0, 8) + '...';
 
-        // Test connection
-        await this.testConnection();
-
         // Load files
         await this.loadFiles();
     }
@@ -263,19 +286,35 @@ class LocalVaultExtension {
     }
 
     async testConnection() {
-        try {
-            const response = await fetch(`${this.baseUrl}/health`, {
-                headers: {
-                    'Authorization': `Bearer ${this.access_token}`,
+
+       const settings = await chrome.storage.local.get(['access_token',
+       'baseUrl']);
+
+       if (!settings.access_token || !settings.baseUrl) {
+            // No tokens, go to setup
+            this.showSetupScreen();
+            return false;
+       }
+
+       try {
+           const response = await fetch(`${this.baseUrl}/api/v1/auth/auth-validity`, {
+             headers: {
+                'Authorization': `Bearer ${settings.access_token}`,
                 },
             });
 
-            const status = response.ok ? 'Connected' : 'Disconnected';
-            document.getElementById('connectionStatus').textContent = status;
+           if (!response.ok) {
+               // Token invalid, clear and go to setup
+               await this.clearTokensOnly();
+               this.showStatus('Session expired, please login again', 'error');
+               return false;
+           }
 
-        } catch (error) {
-            document.getElementById('connectionStatus').textContent = 'Error';
-        }
+       return true;
+
+       } catch (error) {
+        document.getElementById('connectionStatus').textContent = 'Error';
+       }
     }
 
     switchTab(tabName) {
