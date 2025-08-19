@@ -1,3 +1,5 @@
+import urllib.parse
+
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -145,8 +147,8 @@ async def upload_content(
             minio_service.client.put_object(
                 bucket_name,
                 stored_filename,
-                file.file,
-                length=-1,
+                file_stream,
+                length=file_size,
                 part_size=10 * 1024 * 1024,
                 content_type=file.content_type
             )
@@ -307,28 +309,32 @@ async def download_file(
         
         def file_generator():
             try:
+                total_bytes = 0
                 while True:
                     data = response.read(8192)  # Read in 8KB chunks
                     if not data:
                         break
+                    total_bytes += len(data)
+                    print(f"Sending chunk: {len(data)} bytes, total: {total_bytes}")
                     yield data
             finally:
                 response.close()
                 response.release_conn()
-        
+
+        encoded_filename = urllib.parse.quote(content.original_name)
         return StreamingResponse(
             file_generator(),
             media_type=content.mime_type or "application/octet-stream",
             headers={
-                "Content-Disposition": f"attachment; filename={content.original_name}"
+                "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
             }
         )
         
     except S3Error as e:
-        logger.error(f"MinIO error downloading file: {e}")
+        app_logger.exceptionlogs(f"MinIO error downloading file: {e}")
         raise HTTPException(status_code=404, detail="File not found in storage")
     except Exception as e:
-        logger.error(f"Error downloading file: {e}")
+        app_logger.exceptionlogs(f"Error downloading file: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

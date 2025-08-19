@@ -352,7 +352,6 @@ class LocalVaultExtension {
 
     async uploadContent() {
         const textContent = document.getElementById('textContent').value.trim();
-        const phoneTarget = document.getElementById('phoneTarget').value.trim();
 
         if (this.selectedFiles.length === 0 && !textContent) {
             this.showStatus('Please select files or enter text content', 'error');
@@ -374,15 +373,11 @@ class LocalVaultExtension {
                 formData.append('text_content', textContent);
             }
 
-            // Add phone number if specified
-            if (phoneTarget) {
-                formData.append('phone_number', phoneTarget);
-            }
 
-            const response = await fetch(`${this.baseUrl}/files/upload`, {
+            const response = await fetch(`${this.baseUrl}/api/v1/content/upload`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${this.jwtToken}`,
+                    'Authorization': `Bearer ${this.access_token}`,
                 },
                 body: formData,
             });
@@ -395,7 +390,6 @@ class LocalVaultExtension {
                 this.selectedFiles = [];
                 document.getElementById('fileInput').value = '';
                 document.getElementById('textContent').value = '';
-                document.getElementById('phoneTarget').value = '';
                 document.getElementById('fileInfo').classList.add('hidden');
 
                 // Refresh files list
@@ -419,9 +413,9 @@ class LocalVaultExtension {
                     'Authorization': `Bearer ${this.access_token}`,
                 },
             });
-            console.log("Load files", response)
             if (response.ok) {
                 const data = await response.json();
+                console.log(data)
                 this.displayFiles(data.contents);
             } else {
                 this.showStatus('Failed to load files', 'error');
@@ -441,39 +435,58 @@ class LocalVaultExtension {
             return;
         }
 
-        filesList.innerHTML = files.map(file => `
-            <div style="background: rgba(255,255,255,0.1); padding: 10px; margin: 5px 0; border-radius: 6px; cursor: pointer;"
-                 onclick="localVault.downloadFile('${file.file_id}', '${file.filename}')">
-                <div style="font-weight: 500; margin-bottom: 2px;">${file.filename}</div>
+         files.forEach(file => {
+            const fileDiv = document.createElement('div');
+            fileDiv.style.cssText = 'background: rgba(255,255,255,0.1); padding: 10px; margin: 5px 0; border-radius: 6px; cursor: pointer;';
+            fileDiv.innerHTML = `
+                <div style="font-weight: 500;">${file.original_name}</div>
                 <div style="font-size: 11px; opacity: 0.7;">
                     ${this.formatFileSize(parseInt(file.file_size) || 0)} •
                     ${new Date(file.created_at).toLocaleDateString()}
                 </div>
-            </div>
-        `).join('');
+            `;
+
+            // Add click listener (not inline onclick)
+            fileDiv.addEventListener('click', () => {
+                this.downloadFile(file.id, file.original_name);
+            });
+
+            filesList.appendChild(fileDiv);
+        });
     }
 
     async downloadFile(fileId, filename) {
+        console.log("file", fileId)
+        console.log("filename", filename)
         try {
-            const response = await fetch(`${this.baseUrl}/files/download/${fileId}`, {
+            const response = await fetch(`${this.baseUrl}/api/v1/content/download/${fileId}`, {
                 headers: {
-                    'Authorization': `Bearer ${this.jwtToken}`,
+                    'Authorization': `Bearer ${this.access_token}`,
                 },
             });
 
             if (response.ok) {
-                const blob = await response.blob();
+               // Read the response as arrayBuffer for binary files
+                const arrayBuffer = await response.arrayBuffer();
+                console.log('Downloaded size:', arrayBuffer.byteLength);
+                // Get content type from response headers
+                const contentType = response.headers.get('content-type') || 'application/octet-stream';
+                console.log('Content type:', contentType);
+
+                if (arrayBuffer.byteLength === 0) {
+                    this.showStatus('File is empty', 'error');
+                    return;
+                }
+
+                const blob = new Blob([arrayBuffer], { type: contentType });
                 const url = URL.createObjectURL(blob);
 
-                // Use Chrome downloads API
                 chrome.downloads.download({
                     url: url,
                     filename: filename,
                 });
 
                 this.showStatus(`Downloading ${filename}...`, 'success');
-
-                // Clean up
                 setTimeout(() => URL.revokeObjectURL(url), 1000);
 
             } else {
