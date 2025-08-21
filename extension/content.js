@@ -262,7 +262,7 @@ class LocalVaultContent {
         toast.id = 'localvault-toast';
         toast.textContent = message;
         toast.style.cssText = `
-            position: fixed;
+            position: absolute;
             top: 20px;
             right: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -301,9 +301,9 @@ class LocalVaultContent {
                 setTimeout(() => {
                     toast.remove();
                     style.remove();
-                }, 300);
+                }, 3000);
             }
-        }, 3000);
+        }, 30000);
     }
 
     // Handle paste events to detect clipboard content

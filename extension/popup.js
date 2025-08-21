@@ -171,7 +171,6 @@ class LocalVaultExtension {
         // Update settings display
         document.getElementById('currentServerUrl').value = this.baseUrl;
         document.getElementById('currentPhoneNumber').value = this.phoneNumber;
-        document.getElementById('deviceId').textContent = this.deviceId.substring(0, 8) + '...';
 
         // Load files
         await this.loadFiles();
