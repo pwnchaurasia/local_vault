@@ -196,9 +196,12 @@
             margin: 0;
         }
 
-        .tab-button.active {
+        .tab-button.active, .tab-button.active:hover {
             background: rgba(255, 255, 255, 0.2);
             color: white;
+        }
+        .tab-button:hover{
+            color: grey;
         }
     </style>
 </head>
@@ -264,18 +267,14 @@
                         <label for="textContent">Or paste text content</label>
                         <textarea id="textContent" rows="4" placeholder="Paste your text here..."></textarea>
                     </div>
-<!--                    <div class="form-group">-->
-<!--                        <label for="phoneTarget">Send to phone (optional)</label>-->
-<!--                        <input type="text" id="phoneTarget" placeholder="+1234567890" />-->
-<!--                    </div>-->
-                    <button id="uploadBtn">Upload</button>
+                    <button id="uploadBtn">Send</button>
                 </div>
             </div>
 
             <!-- Files Tab -->
             <div id="filesTab" class="tab-content hidden">
                 <div class="card">
-                    <button id="refreshFilesBtn" class="btn-secondary">Refresh Files</button>
+                    <button id="refreshFilesBtn" class="btn-secondary">Sync Files</button>
                     <div id="filesList"></div>
                 </div>
             </div>

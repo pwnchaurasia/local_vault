@@ -213,7 +213,7 @@ class LocalVaultContent {
                 alert('Please enter some text');
                 return;
             }
-
+            console.log("i am here i content js")
             try {
                 const response = await chrome.runtime.sendMessage({
                     action: 'uploadText',
@@ -328,15 +328,15 @@ class LocalVaultContent {
 
             const settings = await chrome.runtime.sendMessage({ action: 'getSettings' });
 
-            if (!settings.jwtToken || !settings.baseUrl) {
+            if (!settings.access_token || !settings.baseUrl) {
                 this.showToast('Please setup LocalVault first');
                 return;
             }
 
-            const response = await fetch(`${settings.baseUrl}/files/upload`, {
+            const response = await fetch(`${settings.baseUrl}/api/v1/content/upload`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${settings.jwtToken}`,
+                    'Authorization': `Bearer ${settings.access_token}`,
                 },
                 body: formData,
             });
