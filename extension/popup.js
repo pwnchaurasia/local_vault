@@ -448,8 +448,15 @@ class LocalVaultExtension {
             ? `Text • ${new Date(file.created_at).toLocaleDateString()}`
             : `${this.formatFileSize(parseInt(file.file_size) || 0)} • ${new Date(file.created_at).toLocaleDateString()}`;
 
+            const delete_icon = document.createElement('span')
+            delete_icon.innerHTML = `<i class="fa fa-trash" aria-hidden="true"></i>`
+            delete_icon.style.cssText = 'margin-left: auto; cursor: pointer; color: #f60000b5;';
+
             fileDiv.innerHTML = `
-                <div style="font-weight: 500;">${displayName}</div>
+                <div style="font-weight: 500; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${displayName}</span>
+                    ${delete_icon.outerHTML}
+                </div>
                 <div style="font-size: 11px; opacity: 0.7;">
                     ${fileInfo}
                 </div>
@@ -461,6 +468,20 @@ class LocalVaultExtension {
                     this.copyTextToClipboard(file.text_content);
                 } else {
                     this.downloadFile(file.id, file.original_name);
+                }
+            });
+
+             // Add delete event listener to the NEW delete icon in the DOM
+            const deleteIconInDiv = fileDiv.querySelector('i.fa-trash').parentElement;
+            deleteIconInDiv.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Prevent triggering parent element clicks
+                console.log("Clicked delete icon")
+                const isDeleted = await this.deleteFile(file.id) // Make this async
+                if (isDeleted){
+                    fileDiv.remove(); // This removes the entire file row
+                    this.showStatus('File deleted successfully', 'success');
+                }else{
+                    this.showStatus('Failed to delete file', 'error');
                 }
             });
 
@@ -530,6 +551,28 @@ class LocalVaultExtension {
             console.error('Download error:', error);
             this.showStatus('Download failed', 'error');
         }
+    }
+
+    async deleteFile(fileId){
+        console.log("deleting file ", fileId)
+        try{
+            const response = await fetch(`${this.baseUrl}/api/v1/content/${fileId}`, {
+                headers: {
+                    'Authorization': `Bearer ${this.access_token}`,
+                },
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                return true
+            }else{
+                return false
+            }
+
+        }catch(error){
+            console.error('Download error:', error);
+            this.showStatus('Data deletion failed', 'error');
+        }
+        return false
     }
 
     formatFileSize(bytes) {
