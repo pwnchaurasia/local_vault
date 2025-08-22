@@ -47,6 +47,9 @@ jobs:
           MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
           MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
           EOF
+          
+          echo "copying .env file inside backend"
+          cp .env backend
 
           # Deploy with Docker
           docker-compose down || true
