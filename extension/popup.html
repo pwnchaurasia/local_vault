@@ -211,6 +211,11 @@
         .fa.fa-trash{
             font-size: 18px;
         }
+        .reset-token{
+            text-align: center;
+            margin-top: 100px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -220,6 +225,9 @@
             <div class="subtitle">Secure local file sharing</div>
         </div>
         <div class="connection-error" id="conError"> </div>
+        <div class="reset-token" id="resetConnectionDiv">
+            <button id="resetConnection">Reset Connection</button>
+        </div>
         <!-- Setup Screen -->
         <div id="setupScreen" class="hidden">
             <div class="card">

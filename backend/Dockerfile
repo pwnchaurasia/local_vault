@@ -19,5 +19,9 @@ RUN mkdir -p /app/data
 # Expose port
 EXPOSE 8000
 
+# Alembic Migration
+
+CMD ["alembic", "upgrade", "head"]
+
 # Run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

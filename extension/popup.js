@@ -24,8 +24,12 @@ class LocalVaultExtension {
         const isConnected = await this.testConnection();
         console.log("isConnected", isConnected)
         const conError = document.getElementById('conError')
+        const resetConnectionDiv = document.getElementById('resetConnectionDiv')
+        resetConnectionDiv.style.display = 'none';
+        conError.innerHTML = ''
         if (!isConnected){
             conError.innerHTML = "Not able to connect to server."
+            resetConnectionDiv.style.display = 'block';
             this.showStatus('Not able to connect to server.', 'error');
             return false
         }else{
@@ -151,6 +155,13 @@ class LocalVaultExtension {
                 this.verifyOtp();
             }
         });
+
+        document.getElementById('resetConnection').addEventListener('click', () => {
+            const reset = document.getElementById('resetConnectionDiv')
+            reset.style.display = 'none'
+            this.clearTokensOnly()
+        })
+
     }
 
     showSetupScreen() {
@@ -323,7 +334,7 @@ class LocalVaultExtension {
        return true;
 
        } catch (error) {
-            document.getElementById('connectionStatus').textContent = 'Error';
+//            document.getElementById('connectionStatus').textContent = 'Error';
             return false
        }
     }
