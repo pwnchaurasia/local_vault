@@ -7,6 +7,7 @@ from typing import Optional, List
 import json
 import uuid
 import logging
+import io
 
 from starlette.responses import JSONResponse
 
@@ -19,6 +20,7 @@ from db.schema import (
     ContentTypeEnum
 )
 from utils import app_logger
+from utils.app_helper import sanitize_title
 
 from utils.dependencies import get_current_user
 # from utils.minio_conn import minio_client
@@ -172,22 +174,46 @@ async def upload_content(
         # Handle text content
         else:
             # Validate text content length
-            if len(text_content) > 1000000:  # 1MB text limit
-                raise HTTPException(
-                    status_code=413,
-                    detail="Text content too large. Maximum size is 1MB"
+            if len(text_content) > 100000:
+                # Upload to MinIO as .txt file
+                minio_service = MinIOService()
+
+                bucket_name = minio_service.create_user_bucket(bucket)
+
+                text_file = io.BytesIO(text_content.encode('utf-8'))
+                stored_file_name = f"{content_id}.txt"
+                minio_service.client.put_object(bucket_name,
+                                                stored_file_name,
+                                                text_file, len(text_content))
+
+                content = Content(
+                    id=content_id,
+                    content_type=ContentType.FILE,
+                    filename=stored_file_name,
+                    original_name=stored_file_name,
+                    title=stored_file_name,
+                    text_content=None ,
+                    user_id=current_user.id,
+                    bucket=bucket_name,
+                    file_path=f"{bucket}/{stored_file_name}",
+                    file_size=len(text_content)
+                )
+            else:
+
+                title = text_content
+                if len(text_content) > 60:
+                    title = sanitize_title(text_content[:60])
+
+                # Create text content record
+                content = Content(
+                    id=content_id,
+                    content_type=ContentType.TEXT,
+                    title=title or "Text Content",
+                    user_id=current_user.id,
+                    text_content=text_content
                 )
             
-            # Create text content record
-            content = Content(
-                id=content_id,
-                content_type=ContentType.TEXT,
-                title=title or "Text Content",
-                user_id=current_user.id,
-                text_content=text_content
-            )
-            
-            logger.info(f"Text content created by user {current_user.phone_number}")
+                logger.info(f"Text content created by user {current_user.phone_number}")
         
         # Save to database
         db.add(content)
@@ -213,10 +239,10 @@ async def upload_content(
         return response_data
         
     except S3Error as e:
-        logger.error(f"MinIO error: {e}")
+        app_logger.exceptionlogs(f"MinIO error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
     except Exception as e:
-        logger.error(f"Error uploading content: {e}")
+        app_logger.exceptionlogs(f"Error uploading content: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

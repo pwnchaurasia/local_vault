@@ -202,6 +202,8 @@ class LocalVaultExtension {
 
         this.baseUrl = serverUrl.replace(/\/$/, ''); // Remove trailing slash
         this.phoneNumber = phoneNumber;
+        this.showOtpScreen()
+        return true
 
         try {
             this.showStatus('Registering device...', 'info');
@@ -301,7 +303,7 @@ class LocalVaultExtension {
        if (!settings.access_token || !settings.baseUrl) {
             // No tokens, go to setup
             this.showSetupScreen();
-            return false;
+            return true;
        }
 
        try {
@@ -424,7 +426,6 @@ class LocalVaultExtension {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log(data)
                 this.displayFiles(data.contents);
             } else {
                 this.showStatus('Failed to load files', 'error');
@@ -450,7 +451,7 @@ class LocalVaultExtension {
 
             console.log('file.content_type', file.content_type)
             const displayName = file.content_type === 'text'
-    ? file.text_content.substring(0, 60) + (file.text_content.length > 60 ? '...' : '')
+    ? file.title.substring(0, 60) + (file.title.length > 60 ? '...' : '')
     : file.original_name;
 
             const fileInfo = file.content_type === 'text'

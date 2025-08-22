@@ -29,14 +29,10 @@ async def request_otp(request: user_schema.UserRegistration):
                     content={"status": "error", "message": resp_msgs.STATUS_404_MSG},
                     status_code=status.HTTP_400_BAD_REQUEST
                 )
-            # TODO : remove OTP from here. its just temporary for testing
-            print(f"Otp is {otp}")
             content = {
                 "status": "success",
                 "message": "Otp sent to your mobile number. Please verify Using it",
             }
-            if os.getenv('ENV', 'dev') == 'dev':
-                content['temp_otp'] = otp
 
             return JSONResponse(
                 content=content,

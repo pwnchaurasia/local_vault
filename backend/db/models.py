@@ -1,5 +1,6 @@
 import enum
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, String, DateTime, Boolean, Text, func, Integer, ForeignKey, BigInteger, Enum
 from sqlalchemy.orm import relationship
@@ -20,9 +21,9 @@ class User(Base):
     phone_number = Column(String, unique=True, index=True)
     is_phone_verified = Column(Boolean, default=False)
     is_active = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+                        onupdate=lambda: datetime.now(timezone.utc))
     # Relationships
     contents = relationship("Content", back_populates="user", cascade="all, delete-orphan")
 
@@ -49,9 +50,10 @@ class Content(Base):
     file_path = Column(String, nullable=True)  # Full file path
     file_size = Column(BigInteger, nullable=True)  # File size in bytes
     mime_type = Column(String, nullable=True)  # MIME type
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+                        onupdate=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
         return f"<Content(id={self.id}, type={self.content_type}, title={self.title})>"
@@ -71,4 +73,6 @@ class FileMetadata(Base):
     content_type = Column(String, nullable=False)
     tags = Column(Text, nullable=True)
     uploaded_by = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+                        onupdate=lambda: datetime.now(timezone.utc))

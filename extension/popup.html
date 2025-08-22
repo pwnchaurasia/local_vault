@@ -208,12 +208,15 @@
             color: #ff0000c9;
             font-size: 16px;
         }
+        .fa.fa-trash{
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo"> <i class="fa fa-superpowers" aria-hidden="true"></i> FileSync</div>
+            <div class="logo"> <i class="fa fa-lock" aria-hidden="true"></i> Local Vault</div>
             <div class="subtitle">Secure local file sharing</div>
         </div>
         <div class="connection-error" id="conError"> </div>
@@ -229,9 +232,9 @@
                 </div>
                 <div class="form-group">
                     <label for="phoneNumber">Phone Number</label>
-                    <input type="text" id="phoneNumber" placeholder="+1234567890" />
+                    <input type="text" id="phoneNumber" placeholder="34567890" />
                 </div>
-                <button id="sendOtpBtn">Send OTP</button>
+                <button id="sendOtpBtn">Connect To Vault</button>
             </div>
         </div>
 
@@ -239,7 +242,7 @@
         <div id="otpScreen" class="hidden">
             <div class="card">
                 <div class="form-group">
-                    <label for="otpCode">Enter OTP</label>
+                    <label for="otpCode">Enter Deployment Code</label>
                     <input type="text" id="otpCode" placeholder="123456" maxlength="6" />
                 </div>
                 <button id="verifyOtpBtn">Verify & Connect</button>
@@ -299,7 +302,7 @@
                 </div>
                 <div class="device-info">
 <!--                    <div>Device ID: <span id="deviceId">-</span></div>-->
-                    <div>Connected: <span id="connectionStatus">-</span></div>
+<!--                    <div>Connected: <span id="connectionStatus">-</span></div>-->
                 </div>
             </div>
         </div>
