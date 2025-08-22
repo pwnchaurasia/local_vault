@@ -24,7 +24,7 @@ jobs:
           if [ -d ".git" ]; then
             git pull origin main
           else
-            git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git .
+            git clone https://github.com/pwnchaurasia/local_vault.git .
           fi
           
           # Create .env file
