@@ -1,0 +1,45 @@
+name: Deploy LocalVault
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.DO_SERVER_HOST }}
+        username: ${{ secrets.DO_SERVER_USER }}
+        key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        script: |
+          # Create project directory
+          mkdir -p /opt/localvault
+          cd /opt/localvault
+          
+          # Clone or pull latest code
+          if [ -d ".git" ]; then
+            git pull origin main
+          else
+            git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git .
+          fi
+          
+          # Create .env file
+          cat > .env << EOF
+          DEPLOYMENT_CODE=${{ secrets.DEPLOYMENT_CODE }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
+          EOF
+          
+          # Deploy with Docker
+          docker-compose down || true
+          docker-compose up -d --build
+          
+          # Show deployment info
+          echo "🎉 LocalVault deployed successfully!"
+          echo "Setup code: ${{ secrets.DEPLOYMENT_CODE }}"
+          echo "URL: https://localvault.pwnchaurasia.dev"
