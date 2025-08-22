@@ -12,7 +12,7 @@ from utils import resp_msgs, app_logger
 from utils.app_helper import generate_otp, verify_otp, create_refresh_token, create_auth_token, verify_user_from_token
 from utils.app_logger import createLogger
 
-from backend.utils.dependencies import get_current_user
+from utils.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

@@ -26,7 +26,7 @@ from utils.dependencies import get_current_user
 # from utils.minio_conn import minio_client
 from minio.error import S3Error
 
-from backend.utils.minio_conn import MinIOService
+from utils.minio_conn import MinIOService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

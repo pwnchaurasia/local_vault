@@ -2,7 +2,7 @@ import os
 import re
 from minio import Minio, S3Error
 
-from backend.utils.app_logger import createLogger
+from utils.app_logger import createLogger
 
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
