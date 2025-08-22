@@ -42,6 +42,8 @@ jobs:
           DO_SERVER_HOST=${{ secrets.DO_SERVER_HOST }}
           DO_SERVER_USER=${{ secrets.DO_SERVER_USER }}
           HASH_SECRET=${{ secrets.HASH_SECRET }}
+          
+          DATABASE_URL=${{secrets.DATABASE_URL}}
 
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
