@@ -17,6 +17,10 @@ jobs:
         key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
         script: |
           # Create project directory
+          echo "${{ secrets.DO_SERVER_HOST }}"
+          echo "${{ secrets.DO_SERVER_USER }}"
+          echo "${{ secrets.DO_SSH_PRIVATE_KEY }}"
+          
           mkdir -p /opt/localvault
           cd /opt/localvault
           
