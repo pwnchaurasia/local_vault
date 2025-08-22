@@ -203,15 +203,20 @@
         .tab-button:hover{
             color: grey;
         }
+        .connection-error{
+            text-align: center;
+            color: #ff0000c9;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🔐 LocalVault</div>
+            <div class="logo"> <i class="fa fa-superpowers" aria-hidden="true"></i> FileSync</div>
             <div class="subtitle">Secure local file sharing</div>
         </div>
-
+        <div class="connection-error" id="conError"> </div>
         <!-- Setup Screen -->
         <div id="setupScreen" class="hidden">
             <div class="card">
@@ -292,10 +297,10 @@
                     </div>
                     <button id="logoutBtn" class="btn-secondary">Logout</button>
                 </div>
-<!--                <div class="device-info">-->
+                <div class="device-info">
 <!--                    <div>Device ID: <span id="deviceId">-</span></div>-->
-<!--                    <div>Connected: <span id="connectionStatus">-</span></div>-->
-<!--                </div>-->
+                    <div>Connected: <span id="connectionStatus">-</span></div>
+                </div>
             </div>
         </div>
     </div>
