@@ -15,43 +15,49 @@ jobs:
         host: ${{ secrets.DO_SERVER_HOST }}
         username: ${{ secrets.DO_SERVER_USER }}
         key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        port: 22
         script: |
-          # Create project directory
-          echo "${{ secrets.DO_SERVER_HOST }}"
-          echo "${{ secrets.DO_SERVER_USER }}"
-          echo "${{ secrets.DO_SSH_PRIVATE_KEY }}"
-          
-          mkdir -p /opt/localvault
-          cd /opt/localvault
-          
-          # Clone or pull latest code
-          if [ -d ".git" ]; then
-            git pull origin main
-          else
-            git clone https://github.com/pwnchaurasia/local_vault.git .
-          fi
-          
-          # Create .env file
-          cat > .env << EOF
-          ACCESS_TOKEN_EXPIRE_MINUTES=${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
-          REFRESH_TOKEN_EXPIRE_DAYS=${{secrets.REFRESH_TOKEN_EXPIRE_DAYS}}
-          DEPLOYMENT_CODE=${{ secrets.DEPLOYMENT_CODE }}
-          
-          DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
-          DO_SERVER_HOST=${{ secrets.DO_SERVER_HOST }}
-          DO_SERVER_USER=${{ secrets.DO_SERVER_USER }}
-          HASH_SECRET=${{ secrets.HASH_SECRET }}
-          
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
-          MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
-          EOF
-          
-          # Deploy with Docker
-          docker-compose down || true
-          docker-compose up -d --build
-          
-          # Show deployment info
-          echo "🎉 LocalVault deployed successfully!"
-          echo "Setup code: ${{ secrets.DEPLOYMENT_CODE }}"
-          echo "URL: https://localvault.pwnchaurasia.dev"
+          echo "SSH connection successful!"
+          whoami
+          pwd
+
+#        script: |
+#          # Create project directory
+#          echo "${{ secrets.DO_SERVER_HOST }}"
+#          echo "${{ secrets.DO_SERVER_USER }}"
+#          echo "${{ secrets.DO_SSH_PRIVATE_KEY }}"
+#
+#          mkdir -p /opt/localvault
+#          cd /opt/localvault
+#
+#          # Clone or pull latest code
+#          if [ -d ".git" ]; then
+#            git pull origin main
+#          else
+#            git clone https://github.com/pwnchaurasia/local_vault.git .
+#          fi
+#
+#          # Create .env file
+#          cat > .env << EOF
+#          ACCESS_TOKEN_EXPIRE_MINUTES=${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
+#          REFRESH_TOKEN_EXPIRE_DAYS=${{secrets.REFRESH_TOKEN_EXPIRE_DAYS}}
+#          DEPLOYMENT_CODE=${{ secrets.DEPLOYMENT_CODE }}
+#
+#          DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
+#          DO_SERVER_HOST=${{ secrets.DO_SERVER_HOST }}
+#          DO_SERVER_USER=${{ secrets.DO_SERVER_USER }}
+#          HASH_SECRET=${{ secrets.HASH_SECRET }}
+#
+#          JWT_SECRET=${{ secrets.JWT_SECRET }}
+#          MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+#          MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
+#          EOF
+#
+#          # Deploy with Docker
+#          docker-compose down || true
+#          docker-compose up -d --build
+#
+#          # Show deployment info
+#          echo "🎉 LocalVault deployed successfully!"
+#          echo "Setup code: ${{ secrets.DEPLOYMENT_CODE }}"
+#          echo "URL: https://localvault.pwnchaurasia.dev"
