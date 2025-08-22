@@ -29,7 +29,15 @@ jobs:
           
           # Create .env file
           cat > .env << EOF
+          ACCESS_TOKEN_EXPIRE_MINUTES=${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
+          REFRESH_TOKEN_EXPIRE_DAYS=${{secrets.REFRESH_TOKEN_EXPIRE_DAYS}}
           DEPLOYMENT_CODE=${{ secrets.DEPLOYMENT_CODE }}
+          
+          DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
+          DO_SERVER_HOST=${{ secrets.DO_SERVER_HOST }}
+          DO_SERVER_USER=${{ secrets.DO_SERVER_USER }}
+          HASH_SECRET=${{ secrets.HASH_SECRET }}
+          
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
           MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
