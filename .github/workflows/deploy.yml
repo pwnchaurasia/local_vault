@@ -56,6 +56,11 @@ jobs:
           # Deploy with Docker
           docker-compose down || true
           docker-compose up -d --build
+          
+          sleep 10  # Wait for container to be ready
+          
+          echo "Running migration"
+          docker-compose exec -T backend alembic upgrade head
 
           # Show deployment info
           echo "🎉 LocalVault deployed successfully!"
