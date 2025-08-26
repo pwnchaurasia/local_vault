@@ -45,8 +45,6 @@ export const AuthProvider = ({ children }) => {
       // Clear local state
       setUser(null);
       setIsAuthenticated(false);
-
-      console.log('User logged out successfully');
       router.replace('(auth)/setup');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -70,7 +68,6 @@ export const AuthProvider = ({ children }) => {
         const isValid = await AuthService.isAuthenticated();
 
         if (isMounted) {
-          console.log('AuthContext: Authentication status:', isValid);
           setIsAuthenticated(isValid);
 
           if (isValid) {
@@ -80,7 +77,6 @@ export const AuthProvider = ({ children }) => {
 
               if(response.status === 200) {
                 const currentUser = response.data?.user;
-                console.log('Current User:', currentUser);
                 setUser(currentUser);
 
                 const profileComplete = currentUser?.is_profile_complete ? currentUser.is_profile_complete : true;
@@ -109,7 +105,6 @@ export const AuthProvider = ({ children }) => {
         }
       } finally {
         if (isMounted) {
-          console.log("AuthContext: Setting loading to false");
           setIsLoading(false);
         }
       }
@@ -125,13 +120,10 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      console.log('AuthContext: Manual auth status check...');
       setIsLoading(true);
 
       // Check if user is authenticated (this will handle token validation)
       const isValid = await AuthService.isAuthenticated();
-
-      console.log('AuthContext: Manual check - Authentication status:', isValid);
       setIsAuthenticated(isValid);
 
       if (!isValid) {
@@ -139,11 +131,9 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     } catch (error) {
-      console.error('AuthContext: Manual auth check failed:', error);
       setIsAuthenticated(false);
       setUser(null);
     } finally {
-      console.log("AuthContext: Manual check - Setting loading to false");
       setIsLoading(false);
     }
   };

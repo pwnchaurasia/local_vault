@@ -314,8 +314,7 @@ class AuthService {
       this.baseURL = '';
       this.phoneNumber = '';
       this.axiosInstance = null;
-      
-      console.log('User logged out successfully - all tokens cleared');
+
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

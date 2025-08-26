@@ -45,7 +45,6 @@ export default function OTPScreen() {
   }, []);
 
   const handleOtpChange = (value, index) => {
-    console.log('handleOtpChange value, index', value, index);
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -103,7 +102,6 @@ export default function OTPScreen() {
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
       Alert.alert('Error', 'Verification failed. Please try again.');
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
