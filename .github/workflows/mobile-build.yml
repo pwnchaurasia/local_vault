@@ -1,0 +1,38 @@
+name: Build Android App
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest  # Android doesn't need macOS
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Setup Expo
+      uses: expo/expo-github-action@v8
+      with:
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+
+    - name: Install dependencies
+      run: |
+        cd mobile/LocalVault
+        npm install
+
+    - name: Build Android APK
+      run: |
+        cd mobile/LocalVault
+        eas build --platform android --profile preview --non-interactive
+
+    - name: Download Build
+      run: |
+        cd mobile/LocalVault
+        # EAS will provide download URL, we'll handle upload to MinIO here
+        echo "Build completed - check EAS dashboard for download"
