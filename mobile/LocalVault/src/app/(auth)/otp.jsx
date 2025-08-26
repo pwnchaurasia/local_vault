@@ -22,9 +22,11 @@ export default function OTPScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
+  const [currIndex, setCurrIndex] = useState(0);
   const router = useRouter();
   const { login } = useAuth();
   const inputRefs = useRef([]);
+  const [isBackspaceAction, setIsBackspaceAction] = useState(false);
 
   useEffect(() => {
     // Start countdown timer
@@ -43,9 +45,11 @@ export default function OTPScreen() {
   }, []);
 
   const handleOtpChange = (value, index) => {
+    console.log('handleOtpChange value, index', value, index);
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+    setCurrIndex(index);
 
     // Auto-focus next input
     if (value && index < 5) {
@@ -56,14 +60,26 @@ export default function OTPScreen() {
     if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 6) {
       handleVerifyOTP(newOtp.join(''));
     }
+    setIsBackspaceAction(false);
   };
 
-  const handleKeyPress = (e, index) => {
-    if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+ const handleKeyPress = (e, index) => {
+  if (e.nativeEvent.key === 'Backspace') {
+    setIsBackspaceAction(true);
+    const newOtp = [...otp];
+    
+    if (otp[index]) {
+      // Clear current field if it has a value
+      newOtp[index] = '';
+      setOtp(newOtp);
+    } else if (index > 0) {
+      // Move to previous field and clear it if current field is empty
+      newOtp[index - 1] = '';
+      setOtp(newOtp);
       inputRefs.current[index - 1]?.focus();
     }
-  };
-
+  }
+};
   const handleVerifyOTP = async (otpCode = null) => {
     const otpString = otpCode || otp.join('');
     
@@ -96,39 +112,6 @@ export default function OTPScreen() {
     }
   };
 
-  const handleResendOTP = async () => {
-    if (!canResend) return;
-
-    setIsLoading(true);
-    try {
-      const response = await AuthService.resendOTP();
-      
-      if (response.success) {
-        Alert.alert('Success', 'OTP sent successfully');
-        setResendTimer(30);
-        setCanResend(false);
-        
-        // Restart timer
-        const timer = setInterval(() => {
-          setResendTimer((prev) => {
-            if (prev <= 1) {
-              setCanResend(true);
-              clearInterval(timer);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      } else {
-        Alert.alert('Error', response.message || 'Failed to resend OTP');
-      }
-    } catch (error) {
-      console.error('Resend OTP error:', error);
-      Alert.alert('Error', 'Failed to resend OTP. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleGoBack = () => {
     router.back();
@@ -168,8 +151,16 @@ export default function OTPScreen() {
                 onKeyPress={(e) => handleKeyPress(e, index)}
                 keyboardType="numeric"
                 maxLength={1}
-                selectTextOnFocus
+                selectTextOnFocus={false}
                 autoFocus={index === 0}
+                onFocus={() => {
+                  if (!isBackspaceAction && otp[index]) {
+                    const newOtp = [...otp];
+                    newOtp[index] = '';
+                    setOtp(newOtp);
+                  }
+                  setIsBackspaceAction(false); 
+                }}
               />
             ))}
           </View>
@@ -180,13 +171,13 @@ export default function OTPScreen() {
             disabled={isLoading}
           >
             <Text style={styles.buttonText}>
-              {isLoading ? 'Verifying...' : 'Verify OTP'}
+              {isLoading ? 'Verifying...' : 'Verify Code'}
             </Text>
           </TouchableOpacity>
 
           <View style={styles.resendContainer}>
-            <Text style={styles.resendText}>Didn't receive the code?</Text>
-            <TouchableOpacity
+            <Text style={styles.resendText}>Find setup code in your deployment env</Text>
+            {/* <TouchableOpacity
               onPress={handleResendOTP}
               disabled={!canResend || isLoading}
               style={styles.resendButton}
@@ -197,7 +188,7 @@ export default function OTPScreen() {
               ]}>
                 {canResend ? 'Resend OTP' : `Resend in ${resendTimer}s`}
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -252,11 +243,11 @@ const styles = StyleSheet.create({
   },
   otpInput: {
     width: 45,
-    height: 56,
+    height: 45,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 12,
     textAlign: 'center',
-    fontSize: 24,
+    fontSize: 16,
     fontFamily: 'Poppins_600SemiBold',
     color: '#333',
     elevation: 2,
@@ -264,6 +255,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    textAlignVertical: 'center',
+    paddingTop: 0, // Remove default padding
+    paddingBottom: 0,
   },
   otpInputFilled: {
     backgroundColor: '#fff',

@@ -144,7 +144,7 @@ class AuthService {
         throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.error('Verify OTP error:', error);
+      // console.error('Verify OTP error:', error);
       return {
         success: false,
         message: error.response?.data?.detail || 'OTP verification failed',
@@ -305,17 +305,7 @@ class AuthService {
   // Logout
   async logout() {
     try {
-      // Optionally call logout endpoint on server
-      if (this.axiosInstance) {
-        try {
-          await this.axiosInstance.post('/api/v1/auth/logout');
-        } catch (error) {
-          console.error('Server logout error:', error);
-          // Continue with local logout even if server call fails
-        }
-      }
-
-      // Clear all stored data
+      // Clear all stored data locally (no API call needed)
       await this.clearTokens();
       await SecureStore.deleteItemAsync('server_url');
       await SecureStore.deleteItemAsync('phone_number');
@@ -324,6 +314,8 @@ class AuthService {
       this.baseURL = '';
       this.phoneNumber = '';
       this.axiosInstance = null;
+      
+      console.log('User logged out successfully - all tokens cleared');
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

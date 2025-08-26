@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AuthService from '@/src/services/authService';
 import { removeToken } from '@/src/utils/token';
+import { router } from 'expo-router';
 
 const AuthContext = createContext();
 
@@ -38,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoading(true);
 
-      // Call logout service (handles backend logout and token cleanup)
+      // Call logout service (handles local token cleanup only)
       await AuthService.logout();
 
       // Clear local state
@@ -46,6 +47,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
 
       console.log('User logged out successfully');
+      router.replace('(auth)/setup');
     } catch (error) {
       console.error('Logout failed:', error);
 

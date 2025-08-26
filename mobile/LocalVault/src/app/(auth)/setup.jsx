@@ -45,13 +45,14 @@ export default function SetupScreen() {
       await AuthService.setServerConfig(cleanUrl, cleanPhone);
 
       // Send OTP request
-      const response = await AuthService.requestOTP(cleanPhone);
+      // const response = await AuthService.requestOTP(cleanPhone);
+      router.push('/(auth)/otp');
       
-      if (response.success) {
-        router.push('/(auth)/otp');
-      } else {
-        Alert.alert('Error', response.message || 'Failed to send OTP');
-      }
+      // if (response.success) {
+      //   router.push('/(auth)/otp');
+      // } else {
+      //   Alert.alert('Error', response.message || 'Failed to send OTP');
+      // }
     } catch (error) {
       console.error('Setup error:', error);
       Alert.alert('Error', 'Connection failed. Please check your server URL.');
@@ -69,13 +70,17 @@ export default function SetupScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Image
-              source={require('@/src/assets/images/icon.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
+            <View style={styles.logoContainer}>
+              <LinearGradient
+                colors={['#667eea', '#764ba2']}
+                style={styles.logoGradient}
+              >
+                <Ionicons name="lock-closed" size={32} color="#fff" />
+              </LinearGradient>
+              {/* <Text style={styles.logoText}>LV</Text> */}
+            </View>
             <Text style={styles.title}>LocalVault</Text>
-            <Text style={styles.subtitle}>Secure local file sharing</Text>
+            <Text style={styles.subtitle}>Secure file sync between devices</Text>
           </View>
 
           <View style={styles.form}>
@@ -97,7 +102,7 @@ export default function SetupScreen() {
               <Ionicons name="call-outline" size={20} color="#667eea" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Phone Number (e.g., +1234567890)"
+                placeholder="(e.g., +1234567890)"
                 placeholderTextColor="#999"
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
@@ -112,7 +117,7 @@ export default function SetupScreen() {
               disabled={isLoading}
             >
               <Text style={styles.buttonText}>
-                {isLoading ? 'Connecting...' : 'Send OTP'}
+                {isLoading ? 'Connecting...' : 'Next'}
               </Text>
               {!isLoading && <Ionicons name="arrow-forward" size={20} color="#fff" />}
             </TouchableOpacity>
@@ -145,10 +150,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  logo: {
-    width: 80,
-    height: 80,
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
+  },
+  logoGradient: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  logoText: {
+    fontSize: 28,
+    fontFamily: 'Poppins_700Bold',
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   title: {
     fontSize: 32,
