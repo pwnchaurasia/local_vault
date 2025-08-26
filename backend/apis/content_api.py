@@ -41,6 +41,16 @@ MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB in bytes
 ALLOWED_FILE_TYPES = {
     # Images
     "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+    "image/bmp", "image/tiff", "image/ico",
+
+    # Videos
+    "video/mp4", "video/mpeg", "video/quicktime", "video/x-msvideo", "video/x-ms-wmv",
+    "video/webm", "video/3gpp", "video/x-flv", "video/x-matroska",
+
+    # Audio
+    "audio/mpeg", "audio/wav", "audio/x-wav", "audio/ogg", "audio/mp4", "audio/aac",
+    "audio/x-m4a", "audio/flac",
+
     # Documents
     "application/pdf", "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -48,11 +58,25 @@ ALLOWED_FILE_TYPES = {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/vnd.ms-powerpoint",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/rtf", "application/vnd.oasis.opendocument.text",
+    "application/vnd.oasis.opendocument.spreadsheet",
+    "application/vnd.oasis.opendocument.presentation",
+
     # Text files
     "text/plain", "text/csv", "text/html", "text/css", "text/javascript",
-    "application/json", "application/xml",
+    "application/json", "application/xml", "text/markdown", "text/x-python",
+    "text/x-java-source", "text/x-c", "text/x-c++src",
+
     # Archives
     "application/zip", "application/x-rar-compressed", "application/x-7z-compressed",
+    "application/x-tar", "application/gzip", "application/x-bzip2",
+
+    # Development files
+    "application/x-sql", "application/x-shellscript",
+
+    # Fonts
+    "font/ttf", "font/otf", "font/woff", "font/woff2",
+
     # Other
     "application/octet-stream"
 }

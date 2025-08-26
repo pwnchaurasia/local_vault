@@ -204,7 +204,7 @@ export default function HomeScreen() {
         <View style={styles.contentItemContent}>
           <View style={styles.contentItemLeft}>
             <View style={styles.iconContainer}>
-              <Ionicons name={iconName} size={24} color="#667eea" />
+              <Ionicons name={iconName} size={24} color="#df9a57" />
             </View>
             <View style={styles.contentItemInfo}>
               <Text style={styles.contentItemName} numberOfLines={2}>
@@ -242,7 +242,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
+    <LinearGradient colors={['#1f2225', '#2a2f33']} style={styles.container}>
       <StatusBar style="light" />
       
       {/* Header */}
@@ -311,7 +311,7 @@ export default function HomeScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.modalContainer}
         >
-          <LinearGradient colors={['#667eea', '#764ba2']} style={styles.modalGradient}>
+          <LinearGradient colors={['#1f2225', '#2a2f33']} style={styles.modalGradient}>
             <View style={[styles.modalHeader, { paddingTop: insets.top + 10 }]}>
               <TouchableOpacity
                 onPress={() => setShowUploadModal(false)}
@@ -326,7 +326,7 @@ export default function HomeScreen() {
             <View style={styles.modalContent}>
               {/* File Selection */}
               <TouchableOpacity style={styles.filePickerButton} onPress={handlePickFiles}>
-                <Ionicons name="document-attach-outline" size={24} color="#667eea" />
+                <Ionicons name="document-attach-outline" size={24} color="#df9a57" />
                 <Text style={styles.filePickerText}>
                   {selectedFiles.length > 0 
                     ? `${selectedFiles.length} file(s) selected`
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#667eea',
+    backgroundColor: '#df9a57',
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 8,
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   uploadButton: {
-    backgroundColor: '#667eea',
+    backgroundColor: '#df9a57',
     borderRadius: 12,
     height: 56,
     flexDirection: 'row',

@@ -116,7 +116,7 @@ export default function OTPScreen() {
   };
 
   return (
-    <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
+    <LinearGradient colors={['#1f2225', '#2a2f33']} style={styles.container}>
       <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -169,7 +169,7 @@ export default function OTPScreen() {
             disabled={isLoading}
           >
             <Text style={styles.buttonText}>
-              {isLoading ? 'Verifying...' : 'Verify Code'}
+              {isLoading ? 'Verifying...' : 'Verify & Connect'}
             </Text>
           </TouchableOpacity>
 
@@ -260,17 +260,17 @@ const styles = StyleSheet.create({
   otpInputFilled: {
     backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#667eea',
+    borderColor: '#df9a57',
   },
   button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#df9a57',
     borderRadius: 12,
     height: 56,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: '#df9a57',
   },
   buttonDisabled: {
     opacity: 0.6,

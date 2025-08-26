@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const LoadingScreen = ({ message = "Loading..." }) => {
   return (
     <LinearGradient
-      colors={['#667eea', '#764ba2']}
+      colors={['#1f2225', '#2a2f33']}
       style={styles.container}
     >
       <View style={styles.content}>

@@ -62,7 +62,7 @@ export default function SetupScreen() {
   };
 
   return (
-    <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
+    <LinearGradient colors={['#1f2225', '#2a2f33']} style={styles.container}>
       <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -72,7 +72,7 @@ export default function SetupScreen() {
           <View style={styles.header}>
             <View style={styles.logoContainer}>
               <LinearGradient
-                colors={['#667eea', '#764ba2']}
+                colors={['#df9a57', '#e6a866']}
                 style={styles.logoGradient}
               >
                 <Ionicons name="lock-closed" size={32} color="#fff" />
@@ -85,7 +85,7 @@ export default function SetupScreen() {
 
           <View style={styles.form}>
             <View style={styles.inputContainer}>
-              <Ionicons name="server-outline" size={20} color="#667eea" style={styles.inputIcon} />
+              <Ionicons name="server-outline" size={20} color="#df9a57" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="https://your-server.com"
@@ -99,7 +99,7 @@ export default function SetupScreen() {
             </View>
 
             <View style={styles.inputContainer}>
-              <Ionicons name="call-outline" size={20} color="#667eea" style={styles.inputIcon} />
+              <Ionicons name="call-outline" size={20} color="#df9a57" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="(e.g., +1234567890)"
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#df9a57',
     borderRadius: 12,
     height: 56,
     flexDirection: 'row',
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: '#df9a57',
   },
   buttonDisabled: {
     opacity: 0.6,
