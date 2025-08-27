@@ -9,9 +9,6 @@ A secure local file sharing and content management system with support for both 
 - **File Upload Support**: Upload files up to 20MB with support for images, documents, archives, etc.
 - **Text Content Storage**: Store and manage long text content (up to 1MB)
 - **MinIO Integration**: Secure object storage for file management
-- **Content Search**: Search across titles, text content, and filenames
-- **Tagging System**: Organize content with custom tags
-- **RESTful API**: Comprehensive REST API with OpenAPI documentation
 
 ## 📋 Requirements
 
@@ -80,7 +77,7 @@ The system uses a single `Content` model that can handle both file uploads and t
 
 - **File Content**: Stores file metadata and references to MinIO storage
 - **Text Content**: Stores text directly in the database
-- **Common Fields**: Title, tags, timestamps, ownership (user/device)
+- **Common Fields**: Title, tags, timestamps, ownership
 
 ### Benefits
 1. **Unified API**: Single set of endpoints for all content types
