@@ -31,18 +31,43 @@ jobs:
         cd mobile/LocalVault
         eas build --platform android --profile preview --non-interactive --wait
 
-    - name: Download APK
+    - name: Download and Release APK
       run: |
           cd mobile/LocalVault
-          # Get latest build download URL
-          BUILD_URL=$(eas build:list --platform=android --limit=1 --json | jq -r '.[0].artifacts.buildUrl')
-          curl -L "$BUILD_URL" -o localvault-android.apk
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-          tag_name: mobile-v${{ github.run_number }}
-          name: LocalVault Mobile v${{ github.run_number }}
-          files: mobile/LocalVault/localvault-android.apk
-          generate_release_notes: true
+        
+        # Wait a moment for build to be processed
+        sleep 30
+        
+        # Get build list with error handling
+        BUILD_LIST=$(eas build:list --platform=android --limit=1 --json 2>/dev/null || echo "[]")
+        
+        # Check if we got valid JSON
+        if [ "$BUILD_LIST" = "[]" ] || [ -z "$BUILD_LIST" ]; then
+          echo "No builds found, trying alternative method"
+          exit 1
+        fi
+        
+        # Extract download URL
+        BUILD_URL=$(echo "$BUILD_LIST" | jq -r '.[0].artifacts.buildUrl // empty')
+        
+        if [ -z "$BUILD_URL" ] || [ "$BUILD_URL" = "null" ]; then
+          echo "No download URL found"
+          exit 1
+        fi
+        
+        # Download APK
+        curl -L "$BUILD_URL" -o localvault-android.apk
+        
+        # Verify file was downloaded
+        if [ ! -f localvault-android.apk ]; then
+          echo "APK download failed"
+          exit 1
+        fi
+        
+        # Create release
+        gh release create "v1.0.${{ github.run_number }}" \
+          localvault-android.apk \
+          --title "LocalVault Mobile v1.0.${{ github.run_number }}" \
+          --generate-notes
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
