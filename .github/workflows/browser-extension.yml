@@ -1,0 +1,24 @@
+name: Build Chrome Extension
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-extension:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Extension Package
+      run: |
+        cd extension
+        zip -r ../localvault-browser-extension.zip . -x "node_modules/*" "*.git*" "package-lock.json" ".DS_Store"
+
+    - name: Create Extension Release
+      run: |
+        gh release create "extension-${{ github.run_number }}" \
+          localvault-browser-extension.zip \
+          --title "LocalVault Browser Extension Build ${{ github.run_number }}" \
+          --generate-notes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
