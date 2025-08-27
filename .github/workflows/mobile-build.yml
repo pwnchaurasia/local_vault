@@ -1,16 +1,15 @@
-name: Build Android App
+name: Build Mobile App
 
 on:
-  workflow_dispatch:  # Manual trigger only
+  workflow_dispatch:
 
 jobs:
-  build-android:
-    runs-on: ubuntu-latest  # Android doesn't need macOS
-
+  build:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup Node.js
+    - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: '18'
@@ -26,14 +25,14 @@ jobs:
         cd mobile/LocalVault
         npm install
 
-    - name: Build Android APK
+    - name: Build APK
       run: |
         cd mobile/LocalVault
         eas build --platform android --profile preview --non-interactive --wait
 
     - name: Download and Release APK
       run: |
-          cd mobile/LocalVault
+        cd mobile/LocalVault
         
         # Wait a moment for build to be processed
         sleep 30
@@ -70,4 +69,4 @@ jobs:
           --title "LocalVault Mobile v1.0.${{ github.run_number }}" \
           --generate-notes
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
