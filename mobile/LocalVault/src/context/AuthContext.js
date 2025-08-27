@@ -22,8 +22,12 @@ export const AuthProvider = ({ children }) => {
 
       // Optionally fetch fresh user data
       if (!userData) {
-        const currentUser = await AuthService.getCurrentUser();
-        setUser(currentUser);
+        const status = await AuthService.getCurrentUser();
+        if (status !== 200) {
+          logout();
+          return
+        }
+        // setUser(currentUser);
       }
     } catch (error) {
       console.error('Login state update failed:', error);

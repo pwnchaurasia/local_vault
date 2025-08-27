@@ -38,7 +38,7 @@ jobs:
         sleep 30
         
         # Get build list with error handling
-        BUILD_LIST=$(eas build:list --platform=android --limit=1 --json 2>/dev/null || echo "[]")
+        BUILD_LIST=$(eas build:list --platform=android --limit=1 --json --non-interactive 2>/dev/null || echo "[]")
         
         # Check if we got valid JSON
         if [ "$BUILD_LIST" = "[]" ] || [ -z "$BUILD_LIST" ]; then

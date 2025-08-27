@@ -277,10 +277,9 @@ class AuthService {
         await this.getServerConfig();
       }
 
-      const response = await this.axiosInstance.get('/api/v1/auth/me');
+      const response = await this.axiosInstance.get('/api/v1/auth-validity');
       return {
-        status: 200,
-        data: { user: response.data },
+        status: 200
       };
     } catch (error) {
       console.error('Get current user error:', error);

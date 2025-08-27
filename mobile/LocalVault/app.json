@@ -17,8 +17,8 @@
       "package": "com.pwnchaurasia.localvault",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./src/assets/images/icon.png",
+        "backgroundColor": "#df9a57"
       },
        "permissions": [
         "CAMERA",
@@ -30,17 +30,17 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./src/assets/images/favicon.png"
+      "favicon": "./src/assets/images/icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./src/assets/images/splash-icon.png",
+          "image": "./src/assets/images/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#df9a57"
         }
       ],
       "expo-font",
