@@ -33,40 +33,44 @@ jobs:
     - name: Download and Release APK
       run: |
         cd mobile/LocalVault
-        
+
         # Wait a moment for build to be processed
         sleep 30
-        
+
         # Get build list with error handling
         BUILD_LIST=$(eas build:list --platform=android --limit=1 --json --non-interactive 2>/dev/null || echo "[]")
-        
-        # Check if we got valid JSON
+
         if [ "$BUILD_LIST" = "[]" ] || [ -z "$BUILD_LIST" ]; then
-          echo "No builds found, trying alternative method"
+          echo "No builds found"
           exit 1
         fi
-        
-        # Extract download URL
+
         BUILD_URL=$(echo "$BUILD_LIST" | jq -r '.[0].artifacts.buildUrl // empty')
-        
+
         if [ -z "$BUILD_URL" ] || [ "$BUILD_URL" = "null" ]; then
           echo "No download URL found"
           exit 1
         fi
-        
+
         # Download APK
         curl -L "$BUILD_URL" -o localvault-android.apk
-        
-        # Verify file was downloaded
+
         if [ ! -f localvault-android.apk ]; then
           echo "APK download failed"
           exit 1
         fi
-        
-        # Create release
+
+        # Create versioned release (v1.0.X)
         gh release create "v1.0.${{ github.run_number }}" \
           localvault-android.apk \
           --title "LocalVault Mobile v1.0.${{ github.run_number }}" \
-          --generate-notes
+          --generate-notes || echo "Release already exists, skipping"
+
+        # Update stable 'app-latest' release (overwrite each run)
+        gh release delete app-latest -y || true
+        gh release create app-latest \
+          localvault-android.apk \
+          --title "LocalVault Mobile (Latest)" \
+          --notes "Always points to the latest successful build"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

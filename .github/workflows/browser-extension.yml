@@ -14,11 +14,19 @@ jobs:
         cd extension
         zip -r ../localvault-browser-extension.zip . -x "node_modules/*" "*.git*" "package-lock.json" ".DS_Store"
 
-    - name: Create Extension Release
+    - name: Create Extension Releases
       run: |
+        # Versioned release
         gh release create "extension-${{ github.run_number }}" \
           localvault-browser-extension.zip \
           --title "LocalVault Browser Extension Build ${{ github.run_number }}" \
-          --generate-notes
+          --generate-notes || echo "Release already exists, skipping"
+
+        # Stable release (always overwritten)
+        gh release delete extension-latest -y || true
+        gh release create extension-latest \
+          localvault-browser-extension.zip \
+          --title "LocalVault Browser Extension (Latest)" \
+          --notes "Always points to the latest successful build"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
