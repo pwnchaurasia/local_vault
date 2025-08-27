@@ -60,155 +60,6 @@ http://localhost:8000/api/v1
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 
-## 🔐 Authentication
-
-The system supports two authentication methods:
-
-### 1. User Authentication (OTP-based)
-```bash
-# Request OTP
-POST /api/v1/auth/request-otp
-{
-  "phone_number": "+919876543210"
-}
-
-# Verify OTP and get tokens
-POST /api/v1/auth/verify-otp
-{
-  "phone_number": "+919876543210",
-  "otp": "123456"
-}
-```
-
-### 2. Device Authentication (API Key-based)
-```bash
-
-### Create Text Content
-```bash
-POST /api/v1/content/text
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-{
-  "title": "My Notes",
-  "text_content": "This is my long text content...",
-  "tags": ["notes", "important"]
-}
-```
-
-### Upload File Content
-```bash
-POST /api/v1/content/file
-Authorization: Bearer <jwt-token>
-Content-Type: multipart/form-data
-
-file: <file-upload>
-title: "My Document"
-tags: "documents,work"
-bucket: "shared"
-```
-
-### List Content
-```bash
-GET /api/v1/content/list?content_type=text&limit=20&offset=0&search=notes
-Authorization: Bearer <jwt-token>
-```
-
-### Get Specific Content
-```bash
-GET /api/v1/content/{content_id}
-Authorization: Bearer <jwt-token>
-```
-
-### Update Content
-```bash
-PUT /api/v1/content/{content_id}
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-{
-  "title": "Updated Title",
-  "tags": ["updated", "notes"],
-  "text_content": "Updated text content..."
-}
-```
-
-### Delete Content
-```bash
-DELETE /api/v1/content/{content_id}
-Authorization: Bearer <jwt-token>
-```
-
-### Download File
-```bash
-GET /api/v1/content/download/{content_id}
-Authorization: Bearer <jwt-token>
-```
-
-### Content Statistics
-```bash
-GET /api/v1/content/stats/summary
-Authorization: Bearer <jwt-token>
-```
-
-## 🗄️ Database Schema
-
-### Content Model (Polymorphic)
-```sql
-CREATE TABLE contents (
-    id VARCHAR PRIMARY KEY,
-    content_type ENUM('file', 'text') NOT NULL,
-    title VARCHAR,
-    tags TEXT, -- JSON string
-    user_id INTEGER REFERENCES users(id),
-    device_id VARCHAR REFERENCES devices(id),
-    
-    -- Text content fields
-    text_content TEXT,
-    
-    -- File content fields
-    filename VARCHAR,
-    original_name VARCHAR,
-    bucket VARCHAR,
-    file_path VARCHAR,
-    file_size BIGINT,
-    mime_type VARCHAR,
-    
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-### User Model
-```sql
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
-    name VARCHAR,
-    email VARCHAR UNIQUE,
-    phone_number VARCHAR UNIQUE NOT NULL,
-    is_email_verified BOOLEAN DEFAULT FALSE,
-    is_phone_verified BOOLEAN DEFAULT FALSE,
-    is_active BOOLEAN DEFAULT FALSE,
-    profile_picture_url VARCHAR,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-### Device Model
-```sql
-CREATE TABLE devices (
-    id VARCHAR PRIMARY KEY,
-    device_name VARCHAR NOT NULL,
-    device_type VARCHAR NOT NULL,
-    mac_address VARCHAR,
-    api_key_hash VARCHAR NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW(),
-    last_seen TIMESTAMP
-);
-```
-
 ## 📁 File Upload Specifications
 
 ### Supported File Types
@@ -216,7 +67,7 @@ CREATE TABLE devices (
 - **Documents**: PDF, Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx)
 - **Text Files**: TXT, CSV, HTML, CSS, JavaScript, JSON, XML
 - **Archives**: ZIP, RAR, 7Z
-- **Other**: Binary files (application/octet-stream)
+- **Other**: Binary files (application/octet-stream), mp4
 
 ### File Size Limits
 - Maximum file size: **20MB**
@@ -242,15 +93,15 @@ The system uses a single `Content` model that can handle both file uploads and t
 ### Environment Variables
 ```bash
 # Database
-DATABASE_URL=sqlite:///./local_vault.db
+DATABASE_URL=
 
 # JWT
 JWT_SECRET=your-super-secret-jwt-key
 
 # MinIO
 MINIO_ENDPOINT=localhost:9000
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin
+MINIO_ACCESS_KEY=
+MINIO_SECRET_KEY=
 MINIO_SECURE=false
 
 # API
@@ -264,7 +115,7 @@ docker-compose up -d
 ```
 
 ### Production Considerations
-1. Use PostgreSQL instead of SQLite
+1. Use any sql database
 2. Set up proper MinIO cluster
 3. Configure HTTPS/TLS
 4. Set up proper logging and monitoring
@@ -292,5 +143,3 @@ For support and questions:
 - Review the logs for debugging information
 
 ---
-
-**LocalVault API v2.0** - Secure, flexible, and powerful content management system.
