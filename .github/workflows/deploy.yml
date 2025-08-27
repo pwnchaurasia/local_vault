@@ -1,4 +1,4 @@
-name: Deploy LocalVault Web App
+name: Build & Deploy Web App
 
 #on:
 #  push:
