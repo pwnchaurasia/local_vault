@@ -462,8 +462,11 @@ class LocalVaultExtension {
 
             console.log('file.content_type', file.content_type)
             const displayName = file.content_type === 'text'
-    ? file.title.substring(0, 60) + (file.title.length > 60 ? '...' : '')
-    : file.original_name;
+    ? (file.title.substring(0, 40) + (file.title.length > 40 ? '...' : ''))
+    : (file.original_name ?
+        file.original_name.substring(0, 40) + (file.original_name.length > 40 ? '...' : '')
+        : 'File Name Not Found'
+    );
 
             const fileInfo = file.content_type === 'text'
             ? `Text • ${new Date(file.created_at).toLocaleDateString()}`
